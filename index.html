@@ -338,13 +338,15 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
     if(cur)img=cur.src;
     var json=JSON.stringify({app:"skills-sheet",v:1,state:state,image:img});
     var fname=((state.meta.name||"character").replace(/[^\wа-яёА-ЯЁ-]+/g,"_")||"character")+".json";
-    if(!(window.claude&&window.claude.use)){say("Скачивание здесь недоступно");return}
-    window.claude.use("downloads").then(function(dl){
-      if(!dl){say("Скачивание здесь недоступно");return}
-      return dl.save({filename:fname,data:json}).then(function(){say("Файл сохранён")},function(err){
-        say(err&&err.code==="declined"?"Сохранение отменено":"Не удалось скачать");
-      });
-    },function(){say("Скачивание здесь недоступно")});
+    try{
+      var blob=new Blob([json],{type:"application/json"});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement("a");
+      a.href=url;a.download=fname;a.rel="noopener";a.style.display="none";
+      document.body.appendChild(a);a.click();
+      setTimeout(function(){if(a.parentNode)a.parentNode.removeChild(a);URL.revokeObjectURL(url)},5000);
+      say("Файл сохранён");
+    }catch(err){say("Не удалось скачать")}
   };
 
   var imp=document.getElementById("imp");
