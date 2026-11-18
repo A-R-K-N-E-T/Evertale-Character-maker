@@ -78,6 +78,11 @@ button{min-height:40px}
 main{padding-bottom:96px}
 .fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:52px;height:52px;min-height:0;padding:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);border:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.3);z-index:20}
 .fab:hover{border:0;filter:brightness(1.08)}
+.fab.disk{right:auto;left:16px}
+.fab.disk svg{transition:none}
+.menu.left{right:auto;left:16px}
+.lang{padding:12px 16px;display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted);border-bottom:1px solid var(--line)}
+.lang select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
 .fab svg{width:28px;height:28px;fill:currentColor;transition:transform .3s}
 .fab[aria-expanded="true"] svg{transform:rotate(60deg)}
 .menu{position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom,0px));width:min(280px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.28);overflow:hidden;z-index:20}
@@ -118,7 +123,7 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
 
 <div class="tabs" role="tablist" aria-label="Разделы">
   <button class="tab" role="tab" id="t-stats" aria-controls="p-stats" aria-selected="true">Характеристики</button>
-  <button class="tab" role="tab" id="t-skills" aria-controls="p-skills" aria-selected="false" tabindex="-1">Умения</button>
+  <button class="tab" role="tab" id="t-skills" aria-controls="p-skills" aria-selected="false" tabindex="-1">Активные умения</button>
   <button class="tab" role="tab" id="t-passive" aria-controls="p-passive" aria-selected="false" tabindex="-1">Пассивные умения</button>
 </div>
 
@@ -126,16 +131,16 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
     <div class="fields">
       <label>Имя<input id="f-name" placeholder="Введите имя" maxlength="60"></label>
       <label>Редкость<select id="f-rarity"><option value="">Выберите</option><option>★</option><option>★★</option><option>★★★</option><option>★★★★</option><option>★★★★★</option><option>★★★★★★</option></select></label>
-      <label>Стихия<select id="f-element"><option value="">Выберите</option><option>Огонь</option><option>Вода</option><option>Земля</option><option>Электричество</option><option>Свет</option><option>Тьма</option></select></label>
+      <label>Стихия<select id="f-element"><option value="">Выберите</option><option value="Огонь">Огонь</option><option value="Вода">Вода</option><option value="Земля">Земля</option><option value="Электричество">Электричество</option><option value="Свет">Свет</option><option value="Тьма">Тьма</option></select></label>
       <label>Боевая сила<input id="f-power" inputmode="numeric" placeholder="0" maxlength="9"></label>
-      <label>АТК<input id="f-atk" inputmode="numeric" placeholder="0" maxlength="9"></label>
+      <label>Атака<input id="f-atk" inputmode="numeric" placeholder="0" maxlength="9"></label>
       <label>Здоровье<input id="f-hp" inputmode="numeric" placeholder="0" maxlength="9"></label>
       <label>Скорость<input id="f-spd" inputmode="numeric" placeholder="0" maxlength="9"></label>
     </div>
 </section>
 
 <section id="p-skills" role="tabpanel" aria-labelledby="t-skills" hidden>
-  <h2>Умения</h2>
+  <h2>Активные умения</h2>
   <div class="grid active" id="active"></div>
 </section>
 
@@ -156,11 +161,19 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
 </button>
 <div class="menu" id="menu" role="menu" hidden>
+  <div class="lang"><label for="lang">Язык</label><select id="lang"><option value="ru">Русский</option><option value="en">English</option></select></div>
+  <button role="menuitem" id="m-reset" class="danger">Сбросить всё</button>
+  <div id="msg" role="status" hidden></div>
+</div>
+<button class="fab disk" id="disk" aria-label="Файлы и библиотека" title="Файлы и библиотека" aria-haspopup="true" aria-expanded="false" aria-controls="fmenu">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+</button>
+<div class="menu left" id="fmenu" role="menu" hidden>
   <button role="menuitem" id="m-lib">Библиотека</button>
   <button role="menuitem" id="m-down">Скачать данные</button>
   <button role="menuitem" id="m-up">Загрузить данные</button>
-  <button role="menuitem" id="m-reset" class="danger">Сбросить всё</button>
-  <div id="msg" role="status" hidden></div>
+  <button role="menuitem" id="m-img">Выгрузить картинкой</button>
+  <div id="msg2" role="status" hidden style="padding:10px 16px;font-size:14px;color:var(--muted);border-top:1px solid var(--line)"></div>
 </div>
 <input id="imp" type="file" accept=".json,application/json" hidden>
 <div class="modal" id="lib" hidden>
@@ -174,6 +187,63 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
 
 <script>
 (function(){
+  // i18n
+  var DICT={
+"Карточка персонажа":"Character Sheet","Характеристики":"Stats","Активные умения":"Active Skills","Пассивные умения":"Passive Skills",
+"Имя":"Name","Введите имя":"Enter a name","Редкость":"Rarity","Стихия":"Element","Выберите":"Select",
+"Огонь":"Fire","Вода":"Water","Земля":"Earth","Электричество":"Storm","Свет":"Light","Тьма":"Dark",
+"Боевая сила":"Total Power","Атака":"Attack","Здоровье":"HP","Скорость":"Speed",
+"Вставить изображение":"Insert image","Нажмите, перетащите файл сюда":"Click or drag a file here","или вставьте из буфера (Ctrl+V)":"or paste from the clipboard (Ctrl+V)",
+"Выбрать изображение":"Choose image","Убрать":"Remove","Разделы":"Sections","Изображение персонажа":"Character image",
+"Название умения":"Skill name","Пассивное умение":"Passive skill","Описание":"Description",
+"Число от −10 до +10":"Number from −10 to +10","Число от 0 до 999":"Number from 0 to 999",
+"Убрать одну табличку":"Remove one card","Добавить табличку":"Add a card",
+"Меню":"Menu","Язык":"Language","Сбросить всё":"Reset all","Нажмите ещё раз для сброса":"Press again to reset","Всё сброшено":"Everything has been reset",
+"Файлы и библиотека":"Files and library","Библиотека":"Library","Скачать данные":"Download data","Загрузить данные":"Upload data","Закрыть":"Close",
+"Название записи":"Entry name","Сохранить текущее":"Save current","Файл сохранён":"File saved","Не удалось скачать":"Download failed",
+"Данные загружены":"Data loaded","Не удалось прочитать файл":"Could not read the file",
+"Не хватило места в браузере. Удалите ненужные записи и попробуйте снова.":"Not enough browser storage. Delete unneeded entries and try again.",
+"Пока ничего не сохранено.":"Nothing saved yet.","Новое название":"New name","ОК":"OK","Отмена":"Cancel",
+"Загрузить":"Load","Перезаписать":"Overwrite","Переименовать":"Rename","Удалить":"Delete",
+"Заменить текущее?":"Replace current?","Перезаписать текущим?":"Overwrite with current?","Точно удалить?":"Really delete?",
+"Запись удалена":"Entry deleted","Выгрузить картинкой":"Export as image","Картинка сохранена":"Image saved","Не удалось создать картинку":"Could not create the image","Без названия":"Untitled",
+"Последняя табличка заполнена. Удалить её?":"The last card is filled in. Delete it?",
+"Изображение показано, но сохранить его в браузере не удалось.":"The image is shown, but it could not be saved in the browser."
+  };
+  var lang="ru";
+  try{lang=localStorage.getItem("skills-sheet-lang")==="en"?"en":"ru"}catch(e){}
+  function T(x){return lang==="en"&&DICT[x]?DICT[x]:x}
+  var LATTRS=["placeholder","title","aria-label","alt"];
+  function applyLang(){
+    var en=lang==="en";
+    document.documentElement.lang=lang;
+    document.title=en?DICT["Карточка персонажа"]:"Карточка персонажа";
+    var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n,nodes=[];
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(function(n){
+      var par=n.parentNode;
+      if(par&&par.closest&&par.closest(".nm,textarea,script"))return;
+      var src=n.__ru!==undefined?n.__ru:n.nodeValue,key=src.trim();
+      if(!key)return;
+      if(en){var tr=DICT[key];if(tr){n.__ru=src;n.nodeValue=src.split(key).join(tr)}}
+      else if(n.__ru!==undefined){n.nodeValue=n.__ru;delete n.__ru}
+    });
+    document.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach(function(el){
+      LATTRS.forEach(function(a){
+        if(!el.hasAttribute(a))return;
+        var k="data-ru-"+a,cur=el.hasAttribute(k)?el.getAttribute(k):el.getAttribute(a);
+        if(en){if(DICT[cur]){el.setAttribute(k,cur);el.setAttribute(a,DICT[cur])}}
+        else if(el.hasAttribute(k)){el.setAttribute(a,el.getAttribute(k));el.removeAttribute(k)}
+      });
+    });
+  }
+  function setLang(l){
+    lang=l==="en"?"en":"ru";
+    try{localStorage.setItem("skills-sheet-lang",lang)}catch(e){}
+    disarm();say("");lsay("");
+    refreshAll();renderLib();applyLang();
+  }
+
   var KEY="skills-sheet-v1",IMG_KEY="skills-sheet-img-v1";
   var state={active:[],passive:[]};
   try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.active&&s.passive)state=s}catch(e){}
@@ -222,12 +292,12 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
       a.onblur=function(){if(a.value==="-")a.value=""};
       paint();
       var w=document.createElement("span");w.className="tu";
-      var t=document.createElement("input");t.inputMode="numeric";t.placeholder="1–999";t.title="Число от 1 до 999";t.setAttribute("aria-label",t.title);t.value=list[idx].t||"";
+      var t=document.createElement("input");t.inputMode="numeric";t.placeholder="0–999";t.title="Число от 0 до 999";t.setAttribute("aria-label",t.title);t.value=list[idx].t||"";
       var u=document.createElement("span");u.textContent="TU";
       var fit=function(){var l=t.value.length;t.style.width=l?l+"ch":"7ch";u.hidden=!l};
       t.oninput=function(){
         var dg=t.value.replace(/\D/g,"").slice(0,3),n2=parseInt(dg,10);
-        t.value=n2>0?String(n2):"";list[idx].t=t.value;fit();save();
+        t.value=n2>=0?String(n2):"";list[idx].t=t.value;fit();save();
       };
       fit();
       w.appendChild(t);w.appendChild(u);row.appendChild(a);row.appendChild(w);el.appendChild(row);
@@ -237,10 +307,12 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   function renderActive(){
     var box=document.getElementById("active");box.innerHTML="";
     state.active.forEach(function(_,i){box.appendChild(card(state.active,i,"","Название умения",true))});
+    applyLang();
   }
   function renderPassive(){
     var box=document.getElementById("passive");box.innerHTML="";
     state.passive.forEach(function(_,i){box.appendChild(card(state.passive,i,"p","Пассивное умение",false))});
+    applyLang();
     document.getElementById("num").textContent=state.passive.length;
     document.getElementById("minus").disabled=state.passive.length<=0;
   }
@@ -251,7 +323,7 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   document.getElementById("minus").onclick=function(){
     var last=state.passive[state.passive.length-1];
     if(!last)return;
-    if((last.n||last.d)&&!confirm("Последняя табличка заполнена. Удалить её?"))return;
+    if((last.n||last.d)&&!confirm(T("Последняя табличка заполнена. Удалить её?")))return;
     state.passive.pop();save();renderPassive();
   };
 
@@ -274,7 +346,7 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
         var g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(src,0,0,c.width,c.height);
         var url=c.toDataURL("image/jpeg",0.85);
         setImage(url);
-        try{localStorage.setItem(IMG_KEY,url)}catch(e){alert("Изображение показано, но сохранить его в браузере не удалось.")}
+        try{localStorage.setItem(IMG_KEY,url)}catch(e){alert(T("Изображение показано, но сохранить его в браузере не удалось."))}
       };
       src.src=r.result;
     };
@@ -306,23 +378,38 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   // Menu
   var METAIDS=[["f-name","name"],["f-rarity","rarity"],["f-element","element"],["f-power","power"],["f-atk","atk"],["f-hp","hp"],["f-spd","spd"]];
   var gear=document.getElementById("gear"),menu=document.getElementById("menu"),msg=document.getElementById("msg"),rbtn=document.getElementById("m-reset"),rtimer;
+  var disk=document.getElementById("disk"),fmenu=document.getElementById("fmenu"),msg2=document.getElementById("msg2");
   function refreshAll(){
     METAIDS.forEach(function(p){document.getElementById(p[0]).value=state.meta[p[1]]||""});
     renderActive();renderPassive();
   }
-  function say(t){msg.textContent=t;msg.hidden=!t}
-  function disarm(){clearTimeout(rtimer);rbtn.classList.remove("armed");rbtn.textContent="Сбросить всё"}
+  function say(t){[msg,msg2].forEach(function(m){m.textContent=t;m.hidden=!t})}
+  function disarm(){clearTimeout(rtimer);rbtn.classList.remove("armed");rbtn.textContent=T("Сбросить всё")}
   function toggle(open){
     menu.hidden=!open;gear.setAttribute("aria-expanded",open);
+    if(open&&!fmenu.hidden)toggleFiles(false);
     if(!open){disarm();say("")}
   }
   gear.onclick=function(e){e.stopPropagation();toggle(menu.hidden)};
-  document.addEventListener("click",function(e){if(!menu.hidden&&!menu.contains(e.target))toggle(false)});
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!menu.hidden){toggle(false);gear.focus()}});
+  function toggleFiles(open){
+    fmenu.hidden=!open;disk.setAttribute("aria-expanded",open);
+    if(open)toggle(false);else say("");
+  }
+  disk.onclick=function(e){e.stopPropagation();toggleFiles(fmenu.hidden)};
+  document.addEventListener("click",function(e){
+    if(!menu.hidden&&!menu.contains(e.target))toggle(false);
+    if(!fmenu.hidden&&!fmenu.contains(e.target))toggleFiles(false);
+  });
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){
+      if(!menu.hidden){toggle(false);gear.focus()}
+      if(!fmenu.hidden){toggleFiles(false);disk.focus()}
+    }
+  });
 
   rbtn.onclick=function(){
     if(!rbtn.classList.contains("armed")){
-      rbtn.classList.add("armed");rbtn.textContent="Нажмите ещё раз для сброса";
+      rbtn.classList.add("armed");rbtn.textContent=T("Нажмите ещё раз для сброса");
       rtimer=setTimeout(disarm,4000);return;
     }
     disarm();
@@ -330,7 +417,7 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
     state.passive=[];for(var j=0;j<6;j++)state.passive.push({n:"",d:""});
     state.meta={name:"",rarity:"",element:""};
     save();try{localStorage.removeItem(IMG_KEY)}catch(e){}
-    setImage("");refreshAll();say("Всё сброшено");
+    setImage("");refreshAll();say(T("Всё сброшено"));
   };
 
   document.getElementById("m-down").onclick=function(){
@@ -345,8 +432,126 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
       a.href=url;a.download=fname;a.rel="noopener";a.style.display="none";
       document.body.appendChild(a);a.click();
       setTimeout(function(){if(a.parentNode)a.parentNode.removeChild(a);URL.revokeObjectURL(url)},5000);
-      say("Файл сохранён");
-    }catch(err){say("Не удалось скачать")}
+      say(T("Файл сохранён"));
+    }catch(err){say(T("Не удалось скачать"))}
+  };
+
+  // Export as 16:9 image
+  function rrect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+  function fitText(c,t,maxW){
+    t=String(t);if(c.measureText(t).width<=maxW)return t;
+    while(t&&c.measureText(t+"…").width>maxW)t=t.slice(0,-1);
+    return t+"…";
+  }
+  function wrapText(c,text,maxW,maxLines){
+    var out=[];
+    String(text).split("\n").forEach(function(para){
+      var line="";
+      para.split(/\s+/).forEach(function(word){
+        if(!word)return;
+        while(c.measureText(word).width>maxW){
+          var k=word.length;while(k>1&&c.measureText(word.slice(0,k)).width>maxW)k--;
+          if(line){out.push(line);line=""}
+          out.push(word.slice(0,k));word=word.slice(k);
+        }
+        var test=line?line+" "+word:word;
+        if(c.measureText(test).width>maxW&&line){out.push(line);line=word}else line=test;
+      });
+      out.push(line);
+    });
+    if(out.length>maxLines){out=out.slice(0,maxLines);out[maxLines-1]=fitText(c,out[maxLines-1]+"…",maxW)}
+    return out;
+  }
+  function saveBlob(blob,fname){
+    var url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download=fname;a.rel="noopener";a.style.display="none";
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){if(a.parentNode)a.parentNode.removeChild(a);URL.revokeObjectURL(url)},5000);
+  }
+  function drawSheet(img){
+    var W=1920,H=1080,cv=document.createElement("canvas");cv.width=W;cv.height=H;
+    var c=cv.getContext("2d"),M=state.meta;
+    var F='"Trebuchet MS","Segoe UI",system-ui,sans-serif',FS='Georgia,"Times New Roman",serif';
+    var INK="#e6ebf0",MUT="#8d99a8",SUR="#1b222b",LINE="#323c49",ACC="#4fb3bf",GOLD="#d4a95a";
+    var g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#141b24");g.addColorStop(1,"#0d1218");
+    c.fillStyle=g;c.fillRect(0,0,W,H);
+    c.textBaseline="alphabetic";c.textAlign="left";
+    // portrait
+    var lx=40,lw=420,ph=560;
+    c.save();rrect(c,lx,40,lw,ph,18);c.clip();
+    c.fillStyle="#1d2630";c.fillRect(lx,40,lw,ph);
+    if(img){var k=Math.max(lw/img.width,ph/img.height),iw=img.width*k,ih=img.height*k;c.drawImage(img,lx+(lw-iw)/2,40+(ph-ih)/2,iw,ih)}
+    c.restore();
+    c.strokeStyle=LINE;c.lineWidth=2;rrect(c,lx,40,lw,ph,18);c.stroke();
+    // name, rarity, element
+    c.fillStyle=INK;c.font="bold 44px "+FS;c.fillText(fitText(c,M.name||"—",lw),lx,672);
+    c.fillStyle=MUT;c.font="18px "+F;c.fillText(T("Редкость"),lx,706);
+    c.textAlign="right";c.fillText(T("Стихия"),lx+lw,706);
+    c.textAlign="left";c.fillStyle=GOLD;c.font="34px "+F;c.fillText(M.rarity||"—",lx,744);
+    c.textAlign="right";c.fillStyle=ACC;c.font="bold 30px "+F;c.fillText(M.element?T(M.element):"—",lx+lw,744);
+    c.textAlign="left";
+    // stats
+    [["Боевая сила","power"],["Атака","atk"],["Здоровье","hp"],["Скорость","spd"]].forEach(function(r,i){
+      var y=776+i*60;
+      c.fillStyle=SUR;rrect(c,lx,y,lw,50,10);c.fill();
+      c.fillStyle=MUT;c.font="22px "+F;c.fillText(T(r[0]),lx+16,y+33);
+      c.textAlign="right";c.fillStyle=INK;c.font="bold 28px "+F;c.fillText(M[r[1]]||"—",lx+lw-16,y+35);c.textAlign="left";
+    });
+    // active skills
+    var mx=500,mw=600;
+    c.fillStyle=ACC;c.font="bold 30px "+FS;c.fillText(T("Активные умения"),mx,70);
+    state.active.forEach(function(sk,i){
+      var y=96+i*238,h=224;
+      c.fillStyle=SUR;rrect(c,mx,y,mw,h,12);c.fill();
+      c.fillStyle=ACC;rrect(c,mx,y,8,h,4);c.fill();
+      c.fillStyle=INK;c.font="bold 28px "+F;c.fillText(fitText(c,sk.n||"—",mw-44),mx+24,y+42);
+      var cx=mx+24;
+      if(sk.a!==undefined&&sk.a!==""){
+        var neg=parseInt(sk.a,10)<0;
+        c.fillStyle=neg?"#7a2f20":"#2f5a2d";rrect(c,cx,y+60,84,34,8);c.fill();
+        c.strokeStyle=neg?"#b5482f":"#5f9a5a";c.lineWidth=2;rrect(c,cx,y+60,84,34,8);c.stroke();
+        c.fillStyle=INK;c.font="bold 22px "+F;c.textAlign="center";c.fillText((neg?"−"+sk.a.replace("-",""):"+"+sk.a),cx+42,y+85);c.textAlign="left";
+        cx+=100;
+      }
+      if(sk.t){c.fillStyle=INK;c.font="bold 26px "+F;c.fillText(sk.t+" TU",cx,y+86)}
+      c.fillStyle=MUT;c.font="22px "+F;
+      wrapText(c,sk.d||"",mw-48,3).forEach(function(l,j){c.fillText(l,mx+24,y+134+j*30)});
+    });
+    // passive skills
+    var rx=1140,rw=740;
+    c.fillStyle=GOLD;c.font="bold 30px "+FS;c.fillText(T("Пассивные умения"),rx,70);
+    var list=state.passive.filter(function(p){return p.n||p.d}),n=list.length;
+    if(!n){c.fillStyle=MUT;c.font="24px "+F;c.fillText("—",rx,120)}
+    else{
+      var cols=n<=8?2:(n<=18?3:4),rows=Math.ceil(n/cols),gap=14,top=96,avail=1034-top;
+      var cw=(rw-(cols-1)*gap)/cols,ch=Math.min(200,(avail-(rows-1)*gap)/rows);
+      var nf=Math.max(16,Math.min(26,Math.floor(ch*0.2))),df=Math.max(14,Math.min(21,Math.floor(ch*0.15))),lh=Math.round(df*1.35);
+      list.forEach(function(p,i){
+        var x=rx+(i%cols)*(cw+gap),y=top+Math.floor(i/cols)*(ch+gap);
+        c.fillStyle=SUR;rrect(c,x,y,cw,ch,12);c.fill();
+        c.fillStyle=GOLD;rrect(c,x,y,8,ch,4);c.fill();
+        c.fillStyle=INK;c.font="bold "+nf+"px "+F;c.fillText(fitText(c,p.n||"—",cw-36),x+22,y+14+nf);
+        var ml=Math.max(1,Math.floor((ch-nf-34)/lh));
+        c.fillStyle=MUT;c.font=df+"px "+F;
+        wrapText(c,p.d||"",cw-40,ml).forEach(function(l,j){c.fillText(l,x+22,y+14+nf+16+df+j*lh)});
+      });
+    }
+    return cv;
+  }
+  document.getElementById("m-img").onclick=function(){
+    var cur=drop.querySelector("img");
+    var finish=function(img){
+      try{
+        var cv=drawSheet(img);
+        var fname=((state.meta.name||"character").replace(/[^\wа-яёА-ЯЁ-]+/g,"_")||"character")+".png";
+        cv.toBlob(function(blob){
+          if(!blob){say(T("Не удалось создать картинку"));return}
+          saveBlob(blob,fname);say(T("Картинка сохранена"));
+        },"image/png");
+      }catch(err){say(T("Не удалось создать картинку"))}
+    };
+    if(cur){var im=new Image();im.onload=function(){finish(im)};im.onerror=function(){finish(null)};im.src=cur.src}
+    else finish(null);
   };
 
   var imp=document.getElementById("imp");
@@ -358,7 +563,7 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
         var a=String(x.a||""),t=String(x.t||"");
         var an=parseInt(a,10),tn=parseInt(t,10);
         o.a=/^-?\d{1,2}$/.test(a)&&an>=-10&&an<=10?String(an):"";
-        o.t=/^\d{1,3}$/.test(t)&&tn>=1?String(tn):"";
+        o.t=/^\d{1,3}$/.test(t)&&tn>=0?String(tn):"";
       }
       return o;
     });
@@ -380,8 +585,8 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
         var url=typeof d.image==="string"&&d.image.indexOf("data:image/")===0?d.image:"";
         setImage(url);
         try{if(url)localStorage.setItem(IMG_KEY,url);else localStorage.removeItem(IMG_KEY)}catch(e){}
-        refreshAll();say("Данные загружены");
-      }catch(e){say("Не удалось прочитать файл")}
+        refreshAll();say(T("Данные загружены"));
+      }catch(e){say(T("Не удалось прочитать файл"))}
     };
     r.readAsText(f);
   };
@@ -394,7 +599,7 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   function lsay(t){libMsg.textContent=t;libMsg.hidden=!t}
   function saveLib(){
     try{localStorage.setItem(LIB_KEY,JSON.stringify(lib));return true}
-    catch(e){lsay("Не хватило места в браузере. Удалите ненужные записи и попробуйте снова.");return false}
+    catch(e){lsay(T("Не хватило места в браузере. Удалите ненужные записи и попробуйте снова."));return false}
   }
   function snapshot(){
     var cur=drop.querySelector("img");
@@ -416,8 +621,8 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   function twoStep(btn,text,fn){
     var armed=false,orig=btn.textContent,t;
     btn.onclick=function(){
-      if(!armed){armed=true;btn.classList.add("armed");btn.textContent=text;
-        t=setTimeout(function(){armed=false;btn.classList.remove("armed");btn.textContent=orig},4000);return}
+      if(!armed){armed=true;btn.classList.add("armed");btn.textContent=T(text);
+        t=setTimeout(function(){armed=false;btn.classList.remove("armed");btn.textContent=T(orig)},4000);return}
       clearTimeout(t);fn();
     };
   }
@@ -425,7 +630,7 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   function find(id){for(var i=0;i<lib.length;i++)if(lib[i].id===id)return lib[i]}
   function renderLib(){
     libList.innerHTML="";
-    if(!lib.length){var p=document.createElement("p");p.className="empty";p.textContent="Пока ничего не сохранено.";libList.appendChild(p);return}
+    if(!lib.length){var p=document.createElement("p");p.className="empty";p.textContent="Пока ничего не сохранено.";libList.appendChild(p);applyLang();return}
     lib.forEach(function(e){
       var box=document.createElement("div");box.className="entry";
       if(renaming===e.id){
@@ -439,18 +644,18 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
       }else{
         var nm=document.createElement("div");nm.className="nm";nm.textContent=e.name;
         var dt=document.createElement("div");dt.className="dt";
-        dt.textContent=new Date(e.ts).toLocaleString("ru-RU",{dateStyle:"short",timeStyle:"short"});
+        dt.textContent=new Date(e.ts).toLocaleString(lang==="en"?"en-US":"ru-RU",{dateStyle:"short",timeStyle:"short"});
         var acts=document.createElement("div");acts.className="acts";
         var bl=mkBtn("Загрузить"),bo=mkBtn("Перезаписать"),br=mkBtn("Переименовать",function(){renaming=e.id;renderLib()}),bd=mkBtn("Удалить");
         twoStep(bl,"Заменить текущее?",function(){applyData(e.data);toggleLib(false);toggle(false)});
         twoStep(bo,"Перезаписать текущим?",function(){
           var old=e.data,oldTs=e.ts;e.data=snapshot();e.ts=Date.now();
-          if(saveLib()){lsay("Запись «"+e.name+"» перезаписана")}else{e.data=old;e.ts=oldTs}
+          if(saveLib()){lsay(lang==="en"?"Entry “"+e.name+"” overwritten":"Запись «"+e.name+"» перезаписана")}else{e.data=old;e.ts=oldTs}
           renderLib();
         });
         twoStep(bd,"Точно удалить?",function(){
           var i=lib.indexOf(e);lib.splice(i,1);
-          if(saveLib())lsay("Запись удалена");else lib.splice(i,0,e);
+          if(saveLib())lsay(T("Запись удалена"));else lib.splice(i,0,e);
           renderLib();
         });
         [bl,bo,br,bd].forEach(function(b){acts.appendChild(b)});
@@ -458,23 +663,28 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
       }
       libList.appendChild(box);
     });
+    applyLang();
   }
   function toggleLib(open){
     libEl.hidden=!open;
     if(open){lsay("");renaming=null;libName.value=state.meta.name||"";renderLib();libName.focus()}
-    else gear.focus();
+    else disk.focus();
   }
-  document.getElementById("m-lib").onclick=function(){toggle(false);toggleLib(true)};
+  document.getElementById("m-lib").onclick=function(){toggleFiles(false);toggleLib(true)};
   document.getElementById("lib-close").onclick=function(){toggleLib(false)};
   libEl.addEventListener("click",function(e){if(e.target===libEl)toggleLib(false)});
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!libEl.hidden)toggleLib(false)});
   document.getElementById("lib-save").onclick=function(){
-    var name=libName.value.trim()||state.meta.name||"Без названия";
+    var name=libName.value.trim()||state.meta.name||T("Без названия");
     var entry={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:name,ts:Date.now(),data:snapshot()};
     lib.unshift(entry);
-    if(saveLib()){lsay("Сохранено: «"+name+"»")}else lib.shift();
+    if(saveLib()){lsay(lang==="en"?"Saved: “"+name+"”":"Сохранено: «"+name+"»")}else lib.shift();
     renderLib();
   };
+  var langSel=document.getElementById("lang");
+  langSel.value=lang;
+  langSel.onchange=function(){setLang(langSel.value)};
+  applyLang();
 })();
 </script>
 </body>
