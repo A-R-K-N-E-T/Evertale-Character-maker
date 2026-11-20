@@ -80,6 +80,8 @@ main{padding-bottom:96px}
 .fab:hover{border:0;filter:brightness(1.08)}
 .fab.disk{right:auto;left:16px}
 .fab.disk svg{transition:none}
+.fab{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.fab.dragging{cursor:grabbing;filter:brightness(1.15)}
 .menu.left{right:auto;left:16px}
 .lang{padding:12px 16px;display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted);border-bottom:1px solid var(--line)}
 .lang select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
@@ -389,14 +391,15 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
   function toggle(open){
     menu.hidden=!open;gear.setAttribute("aria-expanded",open);
     if(open&&!fmenu.hidden)toggleFiles(false);
+    if(open)placeMenu(menu,gear);
     if(!open){disarm();say("")}
   }
-  gear.onclick=function(e){e.stopPropagation();toggle(menu.hidden)};
+  gear.onclick=function(e){e.stopPropagation();if(Date.now()-lastDrag<400)return;toggle(menu.hidden)};
   function toggleFiles(open){
     fmenu.hidden=!open;disk.setAttribute("aria-expanded",open);
-    if(open)toggle(false);else say("");
+    if(open){toggle(false);placeMenu(fmenu,disk)}else say("");
   }
-  disk.onclick=function(e){e.stopPropagation();toggleFiles(fmenu.hidden)};
+  disk.onclick=function(e){e.stopPropagation();if(Date.now()-lastDrag<400)return;toggleFiles(fmenu.hidden)};
   document.addEventListener("click",function(e){
     if(!menu.hidden&&!menu.contains(e.target))toggle(false);
     if(!fmenu.hidden&&!fmenu.contains(e.target))toggleFiles(false);
@@ -436,6 +439,61 @@ button.armed{background:#b5482f;color:#fff;border-color:#b5482f}
       say(T("Файл сохранён"));
     }catch(err){say(T("Не удалось скачать"))}
   };
+
+  // Draggable floating buttons
+  var FAB_KEY="skills-sheet-fab-v1",fabPos={},lastDrag=0;
+  try{fabPos=JSON.parse(localStorage.getItem(FAB_KEY)||"{}")||{}}catch(e){fabPos={}}
+  function setFab(b,l,t){
+    var vw=window.innerWidth,vh=window.innerHeight,w=b.offsetWidth,h=b.offsetHeight;
+    l=Math.min(Math.max(4,l),Math.max(4,vw-w-4));t=Math.min(Math.max(4,t),Math.max(4,vh-h-4));
+    b.style.left=l+"px";b.style.top=t+"px";b.style.right="auto";b.style.bottom="auto";
+  }
+  function applyFab(b){
+    var f=fabPos[b.id];
+    if(f&&typeof f.x==="number"&&typeof f.y==="number")setFab(b,f.x*(window.innerWidth-b.offsetWidth),f.y*(window.innerHeight-b.offsetHeight));
+  }
+  function placeMenu(m,b){
+    var r=b.getBoundingClientRect(),vw=window.innerWidth,vh=window.innerHeight,mw=m.offsetWidth,mh=m.offsetHeight;
+    var l=(r.left+r.width/2<vw/2)?r.left:r.right-mw;
+    l=Math.min(Math.max(8,l),Math.max(8,vw-mw-8));
+    var t=r.top-mh-8;
+    if(t<8)t=r.bottom+8;
+    if(t+mh>vh-8)t=Math.max(8,vh-mh-8);
+    m.style.left=l+"px";m.style.top=t+"px";m.style.right="auto";m.style.bottom="auto";
+  }
+  function makeDraggable(b){
+    var sx,sy,ol,ot,drag=false,pid=null;
+    b.addEventListener("pointerdown",function(e){
+      if(e.button!==undefined&&e.button!==0)return;
+      var r=b.getBoundingClientRect();
+      sx=e.clientX;sy=e.clientY;ol=r.left;ot=r.top;drag=false;pid=e.pointerId;
+      try{b.setPointerCapture(pid)}catch(_){}
+    });
+    b.addEventListener("pointermove",function(e){
+      if(pid===null||e.pointerId!==pid)return;
+      var dx=e.clientX-sx,dy=e.clientY-sy;
+      if(!drag&&Math.sqrt(dx*dx+dy*dy)>6){drag=true;b.classList.add("dragging");toggle(false);toggleFiles(false)}
+      if(drag){setFab(b,ol+dx,ot+dy);e.preventDefault()}
+    });
+    function end(e){
+      if(pid===null||e.pointerId!==pid)return;
+      try{b.releasePointerCapture(pid)}catch(_){}
+      pid=null;
+      if(drag){
+        drag=false;b.classList.remove("dragging");lastDrag=Date.now();
+        var r=b.getBoundingClientRect(),aw=window.innerWidth-b.offsetWidth,ah=window.innerHeight-b.offsetHeight;
+        fabPos[b.id]={x:aw>0?r.left/aw:0,y:ah>0?r.top/ah:0};
+        try{localStorage.setItem(FAB_KEY,JSON.stringify(fabPos))}catch(_){}
+      }
+    }
+    b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);
+  }
+  [gear,disk].forEach(function(b){applyFab(b);makeDraggable(b)});
+  window.addEventListener("resize",function(){
+    [gear,disk].forEach(applyFab);
+    if(!menu.hidden)placeMenu(menu,gear);
+    if(!fmenu.hidden)placeMenu(fmenu,disk);
+  });
 
   // Export as 16:9 image
   function rrect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
